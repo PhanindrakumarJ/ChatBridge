@@ -19,5 +19,9 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapGet("/api/chat/test", () =>
+{
+    return Results.Ok("ChatBridge Chat API is working!");
+});
 
 app.Run();
