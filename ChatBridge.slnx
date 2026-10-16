@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Services/">
+    <Project Path="ChatBridge.Chat.Domain/ChatBridge.Chat.Domain.csproj" Id="9b1e77da-6d34-4100-a382-b5c523fbffdb" />
+  </Folder>
   <Project Path="ChatBridge.Chat.API/ChatBridge.Chat.API.csproj" Id="1c9ab053-795f-4abf-9b77-2047ce6dc2e5" />
   <Project Path="ChatBridge.Gateway/ChatBridge.Gateway.csproj" />
 </Solution>
