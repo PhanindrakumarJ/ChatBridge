@@ -4,5 +4,6 @@
     <Project Path="ChatBridge.Chat.Infrastructure/ChatBridge.Chat.Infrastructure.csproj" Id="0b1fef3f-c0f6-4d92-b6c3-5595eefb3201" />
   </Folder>
   <Project Path="ChatBridge.Chat.API/ChatBridge.Chat.API.csproj" Id="1c9ab053-795f-4abf-9b77-2047ce6dc2e5" />
+  <Project Path="ChatBridge.Chat.Application/ChatBridge.Chat.Application.csproj" Id="3eadbc78-3d53-47de-ba33-adb0621d6e31" />
   <Project Path="ChatBridge.Gateway/ChatBridge.Gateway.csproj" />
 </Solution>
