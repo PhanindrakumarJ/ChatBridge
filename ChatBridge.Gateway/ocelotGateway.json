@@ -1,14 +1,38 @@
 {
   "Routes": [
     {
-      "UpstreamPathTemplate": "/chat/test",
+      "UpstreamPathTemplate": "/chat/messages",
       "UpstreamHttpMethod": [ "GET" ],
-      "DownstreamPathTemplate": "/api/chat/test",
+      "DownstreamPathTemplate": "/api/chat/messages",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 7175
+          "Port": 7001
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/chat/messages",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamPathTemplate": "/api/chat/messages",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7001
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/vendor/profile",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/vendor/profile",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7001
         }
       ]
     }

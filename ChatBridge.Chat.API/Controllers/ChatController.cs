@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using ChatBridge.Chat.Application.DTOS;
+using ChatBridge.Chat.Application.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChatBridge.Chat.API.Controllers
@@ -7,17 +9,47 @@ namespace ChatBridge.Chat.API.Controllers
     [ApiController]
     public class ChatController : ControllerBase
     {
-        [HttpGet]
-        public async Task<IActionResult> Get() 
+        private readonly IChatRepository _chatRepository;
+
+        public ChatController(IChatRepository chatRepository)
+        {
+            _chatRepository = chatRepository;
+        }
+
+        [HttpGet("messages")]
+        public async Task<ActionResult<IReadOnlyList<ChatMessageDto>>>
+            GetMessages(CancellationToken cancellationToken)
         {
             try
             {
-                var getConversation = await GetConversation()
-                return getConversation;
+            var messages = await _chatRepository.GetMessagesAsync(
+                cancellationToken);
+
+            return Ok(messages);
+
             }
-            catch (Exception ex) 
+            catch(Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        [HttpPost("messages")]
+        public async Task<ActionResult<ChatMessageDto>> SendMessage(
+            [FromBody] CreateMessageDto request,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                var message = await _chatRepository.AddMessageAsync(
+                    request,
+                    cancellationToken);
+
+                return Ok(message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
         }
     }

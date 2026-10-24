@@ -1,10 +1,28 @@
+using ChatBridge.Chat.Application.Interfaces;
+using ChatBridge.Chat.Infrastructure.Data;
+using ChatBridge.Chat.Infrastructure.Providers;
+using ChatBridge.Chat.Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
 builder.Services.AddOpenApi();
+
+builder.Services.AddMemoryCache();
+
+// Register database context
+builder.Services.AddDbContext<ChatBridgeDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("ChatBridgeConnection")));
+
+// Register application interfaces and implementations
+
+builder.Services.AddScoped<IChatRepository, ChatRepository>();
+
+builder.Services.AddScoped<IVendorProfileProvider, VendorProfileProvider>();
 
 var app = builder.Build();
 
