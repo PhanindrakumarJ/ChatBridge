@@ -2,6 +2,7 @@
 using ChatBridge.Chat.Application.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ChatBridge.Chat.API.Controllers
 {
@@ -30,11 +31,12 @@ namespace ChatBridge.Chat.API.Controllers
             }
             catch(Exception ex)
             {
-                throw ex;
+                throw;
             }
         }
 
         [HttpPost("messages")]
+        [EnableRateLimiting("MessageRateLimit")]
         public async Task<ActionResult<ChatMessageDto>> SendMessage(
             [FromBody] CreateMessageDto request,
             CancellationToken cancellationToken)

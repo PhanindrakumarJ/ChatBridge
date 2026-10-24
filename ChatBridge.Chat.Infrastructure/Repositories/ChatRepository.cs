@@ -2,6 +2,7 @@
 using ChatBridge.Chat.Application.Interfaces;
 using ChatBridge.Chat.Infrastructure.Data;
 using ChatBridge.Chat.Infrastructure.Data.Entities;
+using ChatBridge.Chat.Infrastructure.Resilience;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -105,31 +106,39 @@ namespace ChatBridge.Chat.Infrastructure.Repositories
             //throw new NotImplementedException();
         }
 
+
         public async Task<IReadOnlyList<ChatMessageDto>> GetMessagesAsync(
-        CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default)
         {
-            var conversation = await _dbContext.Conversations
-                .AsNoTracking()
-                .OrderBy(c => c.CreatedAt)
-                .FirstOrDefaultAsync(cancellationToken);
-
-            if (conversation is null)
-            {
-                return Array.Empty<ChatMessageDto>();
-            }
-
-            return await _dbContext.Messages
-                .AsNoTracking()
-                .Where(m => m.ConversationId == conversation.Id)
-                .OrderBy(m => m.SentAt)
-                .Select(m => new ChatMessageDto
+            return await GetRetryPolicy.ExecuteAsync(
+                async token =>
                 {
-                    Id = m.Id,
-                    SenderId = m.SenderId,
-                    Content = m.Content,
-                    SentAt = m.SentAt
-                })
-                .ToListAsync(cancellationToken);
+                    var conversation = await _dbContext.Conversations
+                        .AsNoTracking()
+                        .OrderBy(c => c.CreatedAt)
+                        .FirstOrDefaultAsync(token);
+
+                    if (conversation is null)
+                    {
+                        return (IReadOnlyList<ChatMessageDto>)
+                            Array.Empty<ChatMessageDto>();
+                    }
+
+                    return await _dbContext.Messages
+                        .AsNoTracking()
+                        .Where(m => m.ConversationId == conversation.Id)
+                        .OrderBy(m => m.SentAt)
+                        .Select(m => new ChatMessageDto
+                        {
+                            Id = m.Id,
+                            SenderId = m.SenderId,
+                            Content = m.Content,
+                            SentAt = m.SentAt
+                        })
+                        .ToListAsync(token);
+                },
+                cancellationToken);
         }
+
     }
 }
