@@ -1,3 +1,4 @@
+using ChatBridge.Chat.API.Hubs;
 using ChatBridge.Chat.Application.Interfaces;
 using ChatBridge.Chat.Infrastructure.Data;
 using ChatBridge.Chat.Infrastructure.Providers;
@@ -9,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
 
 builder.Services.AddOpenApi();
 
@@ -39,6 +41,18 @@ builder.Services.AddRateLimiter(options =>
     });
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowChatBridgeFrontend", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -46,11 +60,15 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+app.UseRouting();
+
+app.UseCors("AllowChatBridgeFrontend");
 app.UseRateLimiter();
 
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
 
 app.MapControllers();
 app.MapGet("/api/chat/test", () =>
@@ -58,4 +76,5 @@ app.MapGet("/api/chat/test", () =>
     return Results.Ok("ChatBridge Chat API is working!");
 });
 
+app.MapHub<ChatHub>("/chatHub");
 app.Run();

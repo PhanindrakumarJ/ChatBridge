@@ -6,6 +6,18 @@ using Ocelot.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowChatBridgeFrontend", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
 // Add services to the container.
 builder.Configuration.AddJsonFile(
     "ocelotGateway.json",
@@ -19,7 +31,9 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+app.UseCors("AllowChatBridgeFrontend");
 
+app.UseWebSockets();
 await app.UseOcelot();
 
 // Configure the HTTP request pipeline.
