@@ -1,6 +1,7 @@
 using ChatBridge.Chat.API.Hubs;
 using ChatBridge.Chat.Application.Interfaces;
 using ChatBridge.Chat.Infrastructure.Data;
+using ChatBridge.Chat.Infrastructure.GlobalTimer;
 using ChatBridge.Chat.Infrastructure.Providers;
 using ChatBridge.Chat.Infrastructure.Repositories;
 using Microsoft.AspNetCore.RateLimiting;
@@ -24,8 +25,8 @@ builder.Services.AddDbContext<ChatBridgeDbContext>(options =>
 // Register application interfaces and implementations
 
 builder.Services.AddScoped<IChatRepository, ChatRepository>();
-
 builder.Services.AddScoped<IVendorProfileProvider, VendorProfileProvider>();
+builder.Services.AddSingleton<GlobalMessageCooldown>();
 
 builder.Services.AddRateLimiter(options =>
 {
@@ -34,7 +35,7 @@ builder.Services.AddRateLimiter(options =>
 
     options.AddFixedWindowLimiter("MessageRateLimit", limiter =>
     {
-        limiter.PermitLimit = 3;
+        limiter.PermitLimit = 10;
         limiter.Window = TimeSpan.FromSeconds(90);
         limiter.QueueLimit = 0;
         limiter.AutoReplenishment = true;
