@@ -7,8 +7,8 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7001
+          "Host": "chatapi-eeh4c4hzgwbmhkbt.southindia-01.azurewebsites.net",
+          "Port": 443
         }
       ]
     },
@@ -19,8 +19,8 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7001
+          "Host": "chatapi-eeh4c4hzgwbmhkbt.southindia-01.azurewebsites.net",
+          "Port": 443
         }
       ]
     },
@@ -31,8 +31,8 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7001
+          "Host": "chatapi-eeh4c4hzgwbmhkbt.southindia-01.azurewebsites.net",
+          "Port": 443
         }
       ]
     }
