@@ -23,11 +23,16 @@ jobs:
         with:
           dotnet-version: '10.x'
 
-      - name: Build with dotnet
-        run: dotnet build --configuration Release
+      # - name: Build with dotnet
+      #   run: dotnet build --configuration Release
 
-      - name: dotnet publish
-        run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+      # - name: dotnet publish
+      #   run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+      - name: Build Chat API
+        run: dotnet build ChatBridge.Chat.API/ChatBridge.Chat.API.csproj --configuration Release
+
+      - name: Publish Chat API
+        run: dotnet publish ChatBridge.Chat.API/ChatBridge.Chat.API.csproj --configuration Release --output "${{env.DOTNET_ROOT}}/myapp"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
