@@ -64,8 +64,8 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-app.UseCors("AllowChatBridgeFrontend");
 app.UseRouting();
+app.UseCors("AllowChatBridgeFrontend");
 //Applying ONLY One CORS Policy rule to the Azure Deployment
 //app.UseCors("ChatBridgeCors");
 app.UseRateLimiter();
