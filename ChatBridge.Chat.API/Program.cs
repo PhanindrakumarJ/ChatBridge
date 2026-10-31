@@ -48,9 +48,9 @@ builder.Services.AddCors(options =>
     {
         policy
             .WithOrigins(
-                "https://yellow-meadow-044b37b00.3.azurestaticapps.net"
+                "https://yellow-meadow-044b37b00.3.azurestaticapps.net",
+                "http://localhost:5173"
             )
-            .WithOrigins("http://localhost:5173")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();

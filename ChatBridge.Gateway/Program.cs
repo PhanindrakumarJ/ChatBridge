@@ -11,7 +11,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowChatBridgeFrontend", policy =>
     {
         policy
-            .WithOrigins("http://localhost:5173")
+            .WithOrigins(
+                "https://yellow-meadow-044b37b00.3.azurestaticapps.net",
+                "http://localhost:5173"
+            )
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
