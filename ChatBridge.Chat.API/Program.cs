@@ -47,6 +47,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowChatBridgeFrontend", policy =>
     {
         policy
+            .WithOrigins(
+                "https://yellow-meadow-044b37b00.3.azurestaticapps.net"
+            )
             .WithOrigins("http://localhost:5173")
             .AllowAnyHeader()
             .AllowAnyMethod()
@@ -62,8 +65,9 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 app.UseRouting();
-
-app.UseCors("AllowChatBridgeFrontend");
+app.UseCors("ChatBridgeCors");
+//Applying ONLY One CORS Policy rule to the Azure Deployment
+//app.UseCors("AllowChatBridgeFrontend");
 app.UseRateLimiter();
 
 app.UseHttpsRedirection();
