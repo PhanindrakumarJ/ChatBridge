@@ -80,7 +80,7 @@ builder.Services.AddRateLimiter(options =>
     options.AddFixedWindowLimiter("MessageRateLimit", limiter =>
     {
         limiter.PermitLimit = 10;
-        limiter.Window = TimeSpan.FromSeconds(90);
+        limiter.Window = TimeSpan.FromSeconds(190);
         limiter.QueueLimit = 0;
         limiter.AutoReplenishment = true;
     });
