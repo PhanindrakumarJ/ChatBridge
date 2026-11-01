@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using RabbitMQ.Client;
 using ChatBridge.Chat.Infrastructure.Messaging.Publishers;
 using ChatBridge.Chat.Infrastructure.Messaging.Interfaces;
+using ChatBridge.Chat.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,7 @@ builder.Services.AddSignalR();
 builder.Services.AddOpenApi();
 
 builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<RateLimitNotificationCooldown>();
 
 // Register database context
 builder.Services.AddDbContext<ChatBridgeDbContext>(options =>
@@ -33,8 +35,47 @@ builder.Services.AddSingleton<GlobalMessageCooldown>();
 
 builder.Services.AddRateLimiter(options =>
 {
-    options.RejectionStatusCode =
-        StatusCodes.Status429TooManyRequests;
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    options.OnRejected = async (context, cancellationToken) =>
+    {
+        RateLimitNotificationCooldown cooldown =
+            context.HttpContext.RequestServices
+                .GetRequiredService<RateLimitNotificationCooldown>();
+
+        // Only the first rejected request during the cooldown publishes.
+        if (!cooldown.TryAcquireNotification())
+        {
+            return;
+        }
+
+        IRabbitMQPublisher publisher =
+            context.HttpContext.RequestServices
+                .GetRequiredService<IRabbitMQPublisher>();
+
+        ILogger<Program> logger =
+            context.HttpContext.RequestServices
+                .GetRequiredService<ILogger<Program>>();
+
+        try
+        {
+            await publisher.PublishAsync(new
+            {
+                EventType = "RateLimitExceeded",
+                Message = "ChatBridge rate limit exceeded.",
+                OccurredAtUtc = DateTime.UtcNow
+            });
+        }
+        catch (Exception exception)
+        {
+            // Allow another attempt if publishing fails.
+            cooldown.ReleaseNotification();
+
+            logger.LogError(
+                exception,
+                "Failed to publish rate-limit notification.");
+        }
+    };
 
     options.AddFixedWindowLimiter("MessageRateLimit", limiter =>
     {
@@ -85,22 +126,12 @@ app.MapGet("/api/chat/rabbitmq-test", async (
         Message = "RabbitMQ connection successful!"
     });
 });
-app.MapPost("/api/chat/rabbitmq-publish-test", async (
-    IRabbitMQPublisher publisher) =>
-{
-    await publisher.PublishAsync(new
-    {
-        Message = "Hello from ChatBridge!",
-        EventType = "RabbitMQTest",
-        PublishedAt = DateTime.UtcNow
-    });
 
-    return Results.Ok(new
-    {
-        Published = true,
-        Message = "Test message published successfully!"
-    });
-});
+app.MapPost("/api/chat/rate-limit-test", () =>
+{
+    return Results.Ok("Request successful!");
+})
+.RequireRateLimiting("MessageRateLimit");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
