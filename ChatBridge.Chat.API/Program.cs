@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using RabbitMQ.Client;
 using ChatBridge.Chat.Infrastructure.Messaging.Publishers;
+using ChatBridge.Chat.Infrastructure.Messaging.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -72,6 +73,7 @@ ConnectionFactory connectionFactory = new ConnectionFactory
 IConnection rabbitMQConnection =
     await connectionFactory.CreateConnectionAsync();
 builder.Services.AddSingleton<IConnection>(rabbitMQConnection);
+builder.Services.AddSingleton<IRabbitMQPublisher, RabbitMQPublisher>();
 
 var app = builder.Build();
 app.MapGet("/api/chat/rabbitmq-test", async (
@@ -81,6 +83,22 @@ app.MapGet("/api/chat/rabbitmq-test", async (
     {
         Connected = connection.IsOpen,
         Message = "RabbitMQ connection successful!"
+    });
+});
+app.MapPost("/api/chat/rabbitmq-publish-test", async (
+    IRabbitMQPublisher publisher) =>
+{
+    await publisher.PublishAsync(new
+    {
+        Message = "Hello from ChatBridge!",
+        EventType = "RabbitMQTest",
+        PublishedAt = DateTime.UtcNow
+    });
+
+    return Results.Ok(new
+    {
+        Published = true,
+        Message = "Test message published successfully!"
     });
 });
 

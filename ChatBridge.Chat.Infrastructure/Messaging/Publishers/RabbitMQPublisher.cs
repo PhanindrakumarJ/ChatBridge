@@ -22,12 +22,26 @@ namespace ChatBridge.Chat.Infrastructure.Messaging.Publishers
 
             try
             {
+                await channel.QueueDeclareAsync(
+                    queue: "rate-limit-events",
+                    durable: true,
+                    exclusive: false,
+                    autoDelete: false,
+                    arguments: null);
+
                 byte[] body = Encoding.UTF8.GetBytes(
                     JsonSerializer.Serialize(message));
+
+                BasicProperties properties = new BasicProperties
+                {
+                    Persistent = true
+                };
 
                 await channel.BasicPublishAsync(
                     exchange: "",
                     routingKey: "rate-limit-events",
+                    mandatory: true,
+                    basicProperties: properties,
                     body: body);
             }
             finally
