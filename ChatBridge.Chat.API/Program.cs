@@ -6,8 +6,6 @@ using ChatBridge.Chat.Infrastructure.Providers;
 using ChatBridge.Chat.Infrastructure.Repositories;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
-using RabbitMQ.Client;
-using ChatBridge.Chat.Infrastructure.Messaging.Publishers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,30 +57,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-string rabbitMQConnectionString =
-    builder.Configuration["RabbitMQ:ConnectionString"]
-    ?? throw new InvalidOperationException(
-        "RabbitMQ connection string is missing.");
-
-ConnectionFactory connectionFactory = new ConnectionFactory
-{
-    Uri = new Uri(rabbitMQConnectionString)
-};
-
-IConnection rabbitMQConnection =
-    await connectionFactory.CreateConnectionAsync();
-builder.Services.AddSingleton<IConnection>(rabbitMQConnection);
-
 var app = builder.Build();
-app.MapGet("/api/chat/rabbitmq-test", async (
-    IConnection connection) =>
-{
-    return Results.Ok(new
-    {
-        Connected = connection.IsOpen,
-        Message = "RabbitMQ connection successful!"
-    });
-});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -90,9 +65,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 app.UseRouting();
+
 app.UseCors("AllowChatBridgeFrontend");
-//Applying ONLY One CORS Policy rule to the Azure Deployment
-//app.UseCors("ChatBridgeCors");
 app.UseRateLimiter();
 
 app.UseHttpsRedirection();
