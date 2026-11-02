@@ -54,7 +54,6 @@ namespace ChatBridge.Chat.API.Controllers
             CancellationToken cancellationToken)
         {
 
-            //Change
             if (!_cooldown.TryReserveSend(
                 out DateTime nextAllowedSendUtc,
                 out bool sendInProgress))
