@@ -57,7 +57,6 @@ namespace ChatBridge.Chat.API.Controllers
                 out DateTime nextAllowedSendUtc,
                 out bool sendInProgress))
             {
-
                 return StatusCode(StatusCodes.Status429TooManyRequests, new
                 {
                     message = sendInProgress
