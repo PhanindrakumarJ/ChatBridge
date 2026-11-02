@@ -57,7 +57,7 @@ namespace ChatBridge.Chat.API.Controllers
                 out DateTime nextAllowedSendUtc,
                 out bool sendInProgress))
             {
-                Response.Headers["Retry-After"] = "1";
+                //Response.Headers["Retry-After"] = "1";
 
                 return StatusCode(StatusCodes.Status429TooManyRequests, new
                 {
