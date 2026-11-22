@@ -1,5 +1,12 @@
 ﻿# ChatBridge — Initial Database Schema
 
+# IMPORTANT!  BRANCHES:
+1)feature/azure_gateway_deployment_branch is for Gateway CI/CD Trigger
+
+2)feature/scaffolded_database_22_10_26 is for API CI/CD Trigger
+
+3)feature/api_local and master are for Local development environments, NEVER Merge Above(1,2) branches to these.
+
 ## Purpose
 
 This document contains the initial SQL schema for ChatBridge, a one-to-one customer–vendor chat application.
