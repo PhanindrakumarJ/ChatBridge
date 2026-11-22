@@ -8,30 +8,17 @@ public static class GetRetryPolicy
     private const int MaxRetries = 3;
 
     public static async Task<T> ExecuteAsync<T>(
-        Func<CancellationToken, Task<T>> operation,
-        CancellationToken cancellationToken = default)
+    Func<CancellationToken, Task<T>> operation,
+    CancellationToken cancellationToken = default)
     {
-        for (var attempt = 0; ; attempt++)
+        //Forced the retry mechanism to 3 for Learning Purpose
+        for (int attempt = 0; ; attempt++)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             try
             {
-                if(attempt< 2)
-                {
-
-                    //Included the If Conditin for cross check and lerning purpose of retry mechanism.
-
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    //Console output for first 2 tries.
-                    Console.WriteLine(attempt);
-
-                }
-                else
-                {
-                    return await operation(cancellationToken);
-                }
+                return await operation(cancellationToken);
             }
             catch (SqlException ex) when (
                 attempt < MaxRetries &&
@@ -39,6 +26,9 @@ public static class GetRetryPolicy
             {
                 var delay = TimeSpan.FromSeconds(
                     Math.Pow(2, attempt + 1));
+
+                Console.WriteLine(
+                    $"Retry {attempt + 1} of {MaxRetries} after {delay.TotalSeconds} seconds.");
 
                 await Task.Delay(delay, cancellationToken);
             }
