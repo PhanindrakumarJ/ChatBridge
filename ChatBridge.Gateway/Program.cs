@@ -1,6 +1,7 @@
+using ChatBridge.Gateway.Middleware;
+using ChatBridge.Gateway.Services;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
-
 
 
 
@@ -33,10 +34,38 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+builder.Services.AddHttpClient<TraceLiteTelemetryService>(
+    (serviceProvider, client) =>
+    {
+        IConfiguration configuration =
+            serviceProvider.GetRequiredService<IConfiguration>();
+
+        string? baseUrl =
+            configuration["TraceLite:BaseUrl"];
+
+        if (!Uri.TryCreate(
+            baseUrl,
+            UriKind.Absolute,
+            out Uri? traceLiteUri))
+        {
+            throw new InvalidOperationException(
+                "TraceLite BaseUrl is missing or invalid.");
+        }
+
+        client.BaseAddress = traceLiteUri;
+        client.Timeout = TimeSpan.FromSeconds(2);
+    });
+builder.Services.AddSingleton<TraceLiteTelemetryQueue>();
+builder.Services.AddHostedService<TraceLiteBackgroundWorker>();
+
 var app = builder.Build();
 app.UseCors("AllowChatBridgeFrontend");
 
 app.UseWebSockets();
+
+app.UseMiddleware<TraceLiteMiddleware>();
+
+
 await app.UseOcelot();
 
 // Configure the HTTP request pipeline.
